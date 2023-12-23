@@ -41,9 +41,11 @@ def decay_db(h, fs, input_file):
 
     return energy_db
 
+
 def main(args):
     waveform, fs = torchaudio.load(args.input)
     decay_db(waveform, fs, args.input)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
