@@ -1,37 +1,38 @@
-import unittest
 import torch
-import torchaudio
-from typing import Union
-from torchreverb.convolve import ConvolutionReverb
+import pytest
+from pathlib import Path
+from torchverb import ConvolutionReverb
 
-class TestConvolutionReverb(unittest.TestCase):
-    def setUp(self):
-        self.ir_file = 'path_to_your_ir_file.wav'  # replace with a real file path
-        self.conv_method = 'fft'
-        self.mix = 0.5
-        self.conv_reverb = ConvolutionReverb(self.ir_file, self.conv_method, self.mix)
 
-    def test_initialization(self):
-        self.assertEqual(self.conv_reverb.ir_file, self.ir_file)
-        self.assertEqual(self.conv_reverb.conv_method, self.conv_method)
-        self.assertEqual(self.conv_reverb.mix, self.mix / 100)
+@pytest.fixture
+def IR_FILE():
+    return Path("./audio/ir_analog/IR_AKG_BX25_1500ms_48kHz24b.wav")
 
-    def test_load_ir(self):
-        ir_sig, ir_sr = torchaudio.load(self.ir_file)
-        self.conv_reverb.load_ir()
-        self.assertTrue(torch.equal(self.conv_reverb.ir_sig, ir_sig))
-        self.assertEqual(self.conv_reverb.ir_sr, ir_sr)
 
-    def test_convolve(self):
-        input_sig = torch.randn(1, 44100)  # replace with a real input signal
-        output_sig = self.conv_reverb.convolve(input_sig)
-        self.assertEqual(output_sig.shape, input_sig.shape)
+def test_ConvolutionReverb_init(IR_FILE):
+    reverb = ConvolutionReverb(IR_FILE)
+    assert isinstance(reverb, ConvolutionReverb), (
+        "Object is not an instance of ConvolutionReverb"
+    )
 
-    def test_invalid_conv_method(self):
-        self.conv_reverb.conv_method = 'invalid_method'
-        input_sig = torch.randn(1, 44100)  # replace with a real input signal
-        with self.assertRaises(ValueError):
-            self.conv_reverb.convolve(input_sig)
 
-if __name__ == '__main__':
-    unittest.main()
+def test_ConvolutionReverb_process(IR_FILE):
+    reverb = ConvolutionReverb(IR_FILE)
+    sr = 48000
+    input_sig = torch.randn(1, sr * 2)  # replace with a real input signal
+    output_sig = reverb(input_sig)
+    assert output_sig.shape == input_sig.shape, (
+        "Output signal shape does not match input signal shape"
+    )
+
+
+@pytest.mark.parametrize(
+    "input_sig",
+    [torch.randn(1, 48000), torch.randn(1, 24000)]
+)
+def test_ConvolutionReverb_process_with_different_inputs(IR_FILE, input_sig):
+    reverb = ConvolutionReverb(IR_FILE)
+    output_sig = reverb(input_sig)
+    assert output_sig.shape == input_sig.shape, (
+        "Output signal shape does not match input signal shape"
+    )

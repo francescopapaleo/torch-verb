@@ -1,19 +1,20 @@
 import torch
+import torch.nn as nn
 import torchaudio
-import torch.nn.functional as F
 
 
-class Echo:
+class Echo(nn.Module):
     def __init__(
         self,
         sr: int,
         delay: float,
         mix: float,
     ) -> None:
+        super().__init__()
         self.delay_samples: int = round(delay * sr)
         self.mix = mix
 
-    def delay(self, input_sig: torch.Tensor) -> torch.Tensor:
+    def forward(self, input_sig: torch.Tensor) -> torch.Tensor:
         # tensor.shape: [n_channels, time]
         delay_array = torch.zeros([1, self.delay_samples])
 
@@ -34,7 +35,7 @@ if __name__ == "__main__":
     input_sig, input_sr = torchaudio.load(input_file)
 
     echo = Echo(sr=input_sr, delay=delay, mix=mix)
-    output_sig = echo.delay(input_sig)
+    output_sig = echo(input_sig)
 
     torchaudio.save(
         uri=output_file,
@@ -47,8 +48,12 @@ if __name__ == "__main__":
 
     # Pad the shorter signal to match the length of the longer one
     max_length = max(input_sig.size(1), output_sig.size(1))
-    input_sig = F.pad(input_sig, (0, max_length - input_sig.size(1)))
-    output_sig = F.pad(output_sig, (0, max_length - output_sig.size(1)))
+    input_sig = nn.functional.pad(
+        input_sig, (0, max_length - input_sig.size(1))
+        )
+    output_sig = nn.functional.pad(
+        output_sig, (0, max_length - output_sig.size(1))
+        )
 
     time = torch.linspace(0, max_length / input_sr, max_length)
 

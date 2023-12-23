@@ -1,17 +1,22 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='torchreverb',
-    version='1.0.0',
+    name='torchverb',
+    version='0.0.1',
     author='Francesco Papaleo',
-    author_email='francesco.papaleo@gmail..com',
+    author_email='francesco.papaleo@gmail.com',
     description='A package for reverb algorithms in PyTorch',
     packages=find_packages(),
     install_requires=[
         'torch',
         'torchaudio',
-        'numpy',
+        'matplotlib',
+        'pytest',
     ],
+    entry_points={
+        'console_scripts': [
+        ],
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
