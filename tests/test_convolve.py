@@ -11,9 +11,9 @@ def IR_FILE():
 
 def test_ConvolutionReverb_init(IR_FILE):
     reverb = ConvolutionReverb(IR_FILE)
-    assert isinstance(reverb, ConvolutionReverb), (
-        "Object is not an instance of ConvolutionReverb"
-    )
+    assert isinstance(
+        reverb, ConvolutionReverb
+    ), "Object is not an instance of ConvolutionReverb"
 
 
 def test_ConvolutionReverb_process(IR_FILE):
@@ -21,18 +21,15 @@ def test_ConvolutionReverb_process(IR_FILE):
     sr = 48000
     input_sig = torch.randn(1, sr * 2)  # replace with a real input signal
     output_sig = reverb(input_sig)
-    assert output_sig.shape == input_sig.shape, (
-        "Output signal shape does not match input signal shape"
-    )
+    assert (
+        output_sig.shape == input_sig.shape
+    ), "Output signal shape does not match input signal shape"
 
 
-@pytest.mark.parametrize(
-    "input_sig",
-    [torch.randn(1, 48000), torch.randn(1, 24000)]
-)
+@pytest.mark.parametrize("input_sig", [torch.randn(1, 48000), torch.randn(1, 24000)])
 def test_ConvolutionReverb_process_with_different_inputs(IR_FILE, input_sig):
     reverb = ConvolutionReverb(IR_FILE)
     output_sig = reverb(input_sig)
-    assert output_sig.shape == input_sig.shape, (
-        "Output signal shape does not match input signal shape"
-    )
+    assert (
+        output_sig.shape == input_sig.shape
+    ), "Output signal shape does not match input signal shape"

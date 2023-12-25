@@ -6,7 +6,12 @@ import matplotlib.pyplot as plt
 import argparse
 
 
-def impulse(sample_rate: int, duration: float, decibels: float = -0.5, impulse_duration: float = 0.03) -> torch.Tensor:
+def impulse(
+    sample_rate: int,
+    duration: float,
+    decibels: float = -0.5,
+    impulse_duration: float = 0.03,
+) -> torch.Tensor:
     array_length = int(duration * sample_rate)
     impulse = torch.zeros(array_length)
 
@@ -21,16 +26,27 @@ def impulse(sample_rate: int, duration: float, decibels: float = -0.5, impulse_d
     return impulse
 
 
-def sine(sample_rate: int, duration: float, amplitude: float, frequency: float = 440.0) -> torch.Tensor:
+def sine(
+    sample_rate: int, duration: float, amplitude: float, frequency: float = 440.0
+) -> torch.Tensor:
     t = torch.arange(0, duration, 1.0 / sample_rate)
     sine_wave = amplitude * torch.sin(2.0 * torch.pi * frequency * t)
     return sine_wave
 
 
-def sweep_tone(sample_rate: int, duration: float, amplitude: float, f0: float = 20, f1: float = 20000, inverse: bool = False) -> torch.Tensor:
+def sweep_tone(
+    sample_rate: int,
+    duration: float,
+    amplitude: float,
+    f0: float = 20,
+    f1: float = 20000,
+    inverse: bool = False,
+) -> torch.Tensor:
     R = torch.log(torch.tensor(f1 / f0))
     t = torch.arange(0, duration, 1.0 / sample_rate)
-    output = torch.sin((2.0 * torch.pi * f0 * duration / R) * (torch.exp(t * R / duration) - 1))
+    output = torch.sin(
+        (2.0 * torch.pi * f0 * duration / R) * (torch.exp(t * R / duration) - 1)
+    )
     if inverse:
         k = torch.exp(t * R / duration)
         output = output.flip(0) / k
@@ -38,12 +54,16 @@ def sweep_tone(sample_rate: int, duration: float, amplitude: float, f0: float = 
     return sweep_tone
 
 
-def generate_reference(duration: float, sample_rate: int, decibels: float = -18, f0: float = 20) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def generate_reference(
+    duration: float, sample_rate: int, decibels: float = -18, f0: float = 20
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     amplitude = 10 ** (decibels / 20)
     f1 = sample_rate / 2
 
     sweep = sweep_tone(sample_rate, duration, amplitude, f0=f0, f1=f1)
-    inverse_filter = sweep_tone(sample_rate, duration, amplitude, f0=f0, f1=f1, inverse=True)
+    inverse_filter = sweep_tone(
+        sample_rate, duration, amplitude, f0=f0, f1=f1, inverse=True
+    )
 
     reference = torchaudio.functional.convolve(inverse_filter, sweep)
 
@@ -79,15 +99,51 @@ def main(duration: float, sample_rate: int, audiodir: str):
     single_impulse = impulse(sample_rate, duration, decibels=-18)
 
     save_audio(audiodir, f"sweep_{int(sample_rate/1000)}k", sample_rate, sweep)
-    save_audio(audiodir, f"inverse_filter_{int(sample_rate/1000)}k", sample_rate, inverse_filter)
-    save_audio(audiodir, f"generator_reference_{int(sample_rate/1000)}k", sample_rate, reference)
-    save_audio(audiodir, f"single_impulse_{int(sample_rate/1000)}k", sample_rate, single_impulse)
+    save_audio(
+        audiodir,
+        f"inverse_filter_{int(sample_rate/1000)}k",
+        sample_rate,
+        inverse_filter,
+    )
+    save_audio(
+        audiodir,
+        f"generator_reference_{int(sample_rate/1000)}k",
+        sample_rate,
+        reference,
+    )
+    save_audio(
+        audiodir,
+        f"single_impulse_{int(sample_rate/1000)}k",
+        sample_rate,
+        single_impulse,
+    )
 
     fig, ax = plt.subplots(3, 1, figsize=(15, 7))
 
-    plot_data(torch.arange(0, len(sweep)) / sample_rate, sweep.numpy(), ax[0], "Processed Sweep Tone", "Time [s]", "Amplitude")
-    plot_data(torch.arange(0, len(inverse_filter)) / sample_rate, inverse_filter.numpy(), ax[1], "Inverse Filter", "Time [s]", "Amplitude")
-    plot_data(torch.arange(0, len(reference)) / sample_rate, reference.numpy(), ax[2], "Impulse Response", "Time [s]", "Amplitude")
+    plot_data(
+        torch.arange(0, len(sweep)) / sample_rate,
+        sweep.numpy(),
+        ax[0],
+        "Processed Sweep Tone",
+        "Time [s]",
+        "Amplitude",
+    )
+    plot_data(
+        torch.arange(0, len(inverse_filter)) / sample_rate,
+        inverse_filter.numpy(),
+        ax[1],
+        "Inverse Filter",
+        "Time [s]",
+        "Amplitude",
+    )
+    plot_data(
+        torch.arange(0, len(reference)) / sample_rate,
+        reference.numpy(),
+        ax[2],
+        "Impulse Response",
+        "Time [s]",
+        "Amplitude",
+    )
 
     fig.suptitle(f"Reference Signals - Impulse Response δ(t)")
 
@@ -98,10 +154,21 @@ def main(duration: float, sample_rate: int, audiodir: str):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate audio files for measurements.")
-    parser.add_argument("--length", type=float, default=5.0, help="Duration of the audio files.")
-    parser.add_argument("--sample_rate", type=int, default=16000, help="Sample rate of the audio files.")
-    parser.add_argument("--audiodir", type=str, default="../audio", help="Directory to save the audio files.")
+    parser = argparse.ArgumentParser(
+        description="Generate audio files for measurements."
+    )
+    parser.add_argument(
+        "--length", type=float, default=5.0, help="Duration of the audio files."
+    )
+    parser.add_argument(
+        "--sample_rate", type=int, default=16000, help="Sample rate of the audio files."
+    )
+    parser.add_argument(
+        "--audiodir",
+        type=str,
+        default="../audio",
+        help="Directory to save the audio files.",
+    )
     args = parser.parse_args()
 
     main(args.length, args.sample_rate, args.audiodir)

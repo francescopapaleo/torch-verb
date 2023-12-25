@@ -7,10 +7,7 @@ from typing import Union
 
 class ConvolutionReverb(nn.Module):
     def __init__(
-        self,
-        ir_file: str,
-        conv_method: str = "fft",
-        mix: float = 0.5
+        self, ir_file: str, conv_method: str = "fft", mix: float = 0.5
     ) -> None:
         super().__init__()
         self.ir_file: str = ir_file
@@ -29,7 +26,7 @@ class ConvolutionReverb(nn.Module):
         self.ir_sig = self.ir_sig[start_index:end_index]
 
     def forward(self, input_sig: torch.Tensor) -> torch.Tensor:
-        length = input_sig.shape[1] + self.ir_sig.shape[1] - 1
+        #  length = input_sig.shape[1] + self.ir_sig.shape[1] - 1
 
         if self.conv_method == "fft":
             wet_sig = F.fftconvolve(input_sig, self.ir_sig, mode="full")
@@ -40,7 +37,7 @@ class ConvolutionReverb(nn.Module):
 
         # Truncate or pad the wet signal to match the input signal length
         if wet_sig.shape[1] > input_sig.shape[1]:
-            wet_sig = wet_sig[:, :input_sig.shape[1]]
+            wet_sig = wet_sig[:, : input_sig.shape[1]]
         elif wet_sig.shape[1] < input_sig.shape[1]:
             padding = input_sig.shape[1] - wet_sig.shape[1]
             wet_sig = nn.functional.pad(wet_sig, (0, padding))
@@ -55,12 +52,11 @@ if __name__ == "__main__":
     output_file: str = "../audio/proc/output_convolve.wav"
     ir_file: str = "../audio/ir_analog/IR_AKG_BX25_1500ms_48kHz24b.wav"
     conv_method: str = "fft"
-    wet_mix: float = 0.5
+    mix: float = 0.5
 
-    # Load input signal
     input_sig, input_sr = torchaudio.load(input_file)
 
-    reverb = ConvolutionReverb(ir_file, conv_method, wet_mix)
+    reverb = ConvolutionReverb(ir_file, conv_method, mix)
     output_sig = reverb(input_sig)
 
     torchaudio.save(
@@ -70,26 +66,22 @@ if __name__ == "__main__":
         channels_first=True,
         format="wav",
         encoding="PCM_S",
-        bits_per_sample=24)
+        bits_per_sample=24,
+    )
 
     # Pad the shorter signal to match the length of the longer one
     max_length = max(input_sig.size(1), output_sig.size(1))
-    input_sig = nn.functional.pad(
-        input_sig, (0, max_length - input_sig.size(1)))
-    output_sig = nn.functional.pad(
-        output_sig, (0, max_length - output_sig.size(1)))
+    input_sig = nn.functional.pad(input_sig, (0, max_length - input_sig.size(1)))
+    output_sig = nn.functional.pad(output_sig, (0, max_length - output_sig.size(1)))
 
     time = torch.linspace(0, max_length / input_sr, max_length)
 
     import matplotlib.pyplot as plt
-    plt.style.use('seaborn-v0_8-whitegrid')
+
+    plt.style.use("seaborn-v0_8-whitegrid")
     plt.figure()
     # Plot the input_sig and output_sig waveforms overlapped on the same plot
-    plt.plot(
-        time.numpy(), input_sig[0, :].numpy(),
-        label='Input signal', alpha=0.5)
-    plt.plot(
-        time.numpy(), output_sig[0, :].numpy(),
-        label='Output signal', alpha=0.5)
+    plt.plot(time.numpy(), input_sig[0, :].numpy(), label="Input signal", alpha=0.5)
+    plt.plot(time.numpy(), output_sig[0, :].numpy(), label="Output signal", alpha=0.5)
     plt.legend()
     plt.show()

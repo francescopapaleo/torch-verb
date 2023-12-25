@@ -4,9 +4,12 @@ import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 from pathlib import Path
 
+
 def decay_db(h, fs, input_file):
     power = h**2
-    energy = torch.cumsum(power.flip(0), dim=0).flip(0)  # Integration according to Schroeder
+    energy = torch.cumsum(power.flip(0), dim=0).flip(
+        0
+    )  # Integration according to Schroeder
 
     # remove the possibly all zero tail
     i_nz = torch.max(torch.nonzero(energy > 0)).item()
@@ -49,9 +52,10 @@ def main(args):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--input", type=str, required=True, help="Path (rel) relative to input audio")
+    parser.add_argument(
+        "--input", type=str, required=True, help="Path (rel) relative to input audio"
+    )
 
     args = parser.parse_args()
 
     main(args)
-

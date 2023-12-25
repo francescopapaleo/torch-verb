@@ -3,7 +3,7 @@ import torch.nn as nn
 import torchaudio
 
 
-class Echo(nn.Module):
+class DelayLine(nn.Module):
     def __init__(
         self,
         sr: int,
@@ -34,8 +34,8 @@ if __name__ == "__main__":
 
     input_sig, input_sr = torchaudio.load(input_file)
 
-    echo = Echo(sr=input_sr, delay=delay, mix=mix)
-    output_sig = echo(input_sig)
+    delay = DelayLine(sr=input_sr, delay=delay, mix=mix)
+    output_sig = delay(input_sig)
 
     torchaudio.save(
         uri=output_file,
@@ -44,28 +44,22 @@ if __name__ == "__main__":
         channels_first=True,
         format="wav",
         encoding="PCM_S",
-        bits_per_sample=24)
+        bits_per_sample=24,
+    )
 
     # Pad the shorter signal to match the length of the longer one
     max_length = max(input_sig.size(1), output_sig.size(1))
-    input_sig = nn.functional.pad(
-        input_sig, (0, max_length - input_sig.size(1))
-        )
-    output_sig = nn.functional.pad(
-        output_sig, (0, max_length - output_sig.size(1))
-        )
+    input_sig = nn.functional.pad(input_sig, (0, max_length - input_sig.size(1)))
+    output_sig = nn.functional.pad(output_sig, (0, max_length - output_sig.size(1)))
 
     time = torch.linspace(0, max_length / input_sr, max_length)
 
     import matplotlib.pyplot as plt
-    plt.style.use('seaborn-v0_8-whitegrid')
+
+    plt.style.use("seaborn-v0_8-whitegrid")
     plt.figure()
     # Plot the input_sig and output_sig waveforms overlapped on the same plot
-    plt.plot(
-        time.numpy(), input_sig[0, :].numpy(),
-        label='Input signal', alpha=0.5)
-    plt.plot(
-        time.numpy(), output_sig[0, :].numpy(),
-        label='Output signal', alpha=0.5)
+    plt.plot(time.numpy(), input_sig[0, :].numpy(), label="Input signal", alpha=0.5)
+    plt.plot(time.numpy(), output_sig[0, :].numpy(), label="Output signal", alpha=0.5)
     plt.legend()
     plt.show()
