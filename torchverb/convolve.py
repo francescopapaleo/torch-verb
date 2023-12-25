@@ -6,6 +6,15 @@ from typing import Union
 
 
 class ConvolutionReverb(nn.Module):
+    """
+    ConvolutionReverb module applies convolution reverb effect to an input signal.
+
+    Args:
+        ir_file (str): Path to the impulse response (IR) file.
+        conv_method (str, optional): Convolution method to use. Defaults to "fft".
+        mix (float, optional): Mixing ratio between the wet and dry signals. Defaults to 0.5.
+    """
+
     def __init__(
         self, ir_file: str, conv_method: str = "fft", mix: float = 0.5
     ) -> None:
@@ -19,6 +28,9 @@ class ConvolutionReverb(nn.Module):
         self.load_ir()
 
     def load_ir(self) -> None:
+        """
+        Load the impulse response (IR) from the specified file.
+        """
         self.ir_sig, _ = torchaudio.load(self.ir_file)
         non_zero_indices = torch.nonzero(self.ir_sig.squeeze())
         start_index = non_zero_indices[0]
@@ -26,6 +38,15 @@ class ConvolutionReverb(nn.Module):
         self.ir_sig = self.ir_sig[start_index:end_index]
 
     def forward(self, input_sig: torch.Tensor) -> torch.Tensor:
+        """
+        Apply convolution reverb effect to the input signal.
+
+        Args:
+            input_sig (torch.Tensor): Input signal to apply the effect on.
+
+        Returns:
+            torch.Tensor: Output signal with the convolution reverb effect applied.
+        """
         #  length = input_sig.shape[1] + self.ir_sig.shape[1] - 1
 
         if self.conv_method == "fft":

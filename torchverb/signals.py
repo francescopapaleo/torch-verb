@@ -12,6 +12,18 @@ def impulse(
     decibels: float = -0.5,
     impulse_duration: float = 0.03,
 ) -> torch.Tensor:
+    """
+    Generates an impulse signal with the specified parameters.
+
+    Args:
+        sample_rate (int): The sample rate of the signal.
+        duration (float): The duration of the signal in seconds.
+        decibels (float, optional): The amplitude of the impulse in decibels. Defaults to -0.5.
+        impulse_duration (float, optional): The duration of the impulse in seconds. Defaults to 0.03.
+
+    Returns:
+        torch.Tensor: The generated impulse signal.
+    """
     array_length = int(duration * sample_rate)
     impulse = torch.zeros(array_length)
 
@@ -29,6 +41,18 @@ def impulse(
 def sine(
     sample_rate: int, duration: float, amplitude: float, frequency: float = 440.0
 ) -> torch.Tensor:
+    """
+    Generate a sine wave signal.
+
+    Args:
+        sample_rate (int): The sample rate of the signal.
+        duration (float): The duration of the signal in seconds.
+        amplitude (float): The amplitude of the signal.
+        frequency (float, optional): The frequency of the sine wave in Hz. Defaults to 440.0.
+
+    Returns:
+        torch.Tensor: The generated sine wave signal.
+    """
     t = torch.arange(0, duration, 1.0 / sample_rate)
     sine_wave = amplitude * torch.sin(2.0 * torch.pi * frequency * t)
     return sine_wave
@@ -42,6 +66,20 @@ def sweep_tone(
     f1: float = 20000,
     inverse: bool = False,
 ) -> torch.Tensor:
+    """
+    Generate a sweep tone signal.
+
+    Args:
+        sample_rate (int): The sample rate of the signal.
+        duration (float): The duration of the signal in seconds.
+        amplitude (float): The amplitude of the signal.
+        f0 (float, optional): The starting frequency of the sweep tone. Defaults to 20.
+        f1 (float, optional): The ending frequency of the sweep tone. Defaults to 20000.
+        inverse (bool, optional): Whether to generate an inverse sweep tone. Defaults to False.
+
+    Returns:
+        torch.Tensor: The generated sweep tone signal.
+    """
     R = torch.log(torch.tensor(f1 / f0))
     t = torch.arange(0, duration, 1.0 / sample_rate)
     output = torch.sin(
@@ -95,6 +133,17 @@ def plot_data(x, y, subplot, title, x_label, y_label, legend=False):
 
 
 def main(duration: float, sample_rate: int, audiodir: str):
+    """
+    Generate and save reference signals for audio processing.
+
+    Args:
+        duration (float): The duration of the reference signals in seconds.
+        sample_rate (int): The sample rate of the reference signals.
+        audiodir (str): The directory to save the generated audio files.
+
+    Returns:
+        None
+    """
     sweep, inverse_filter, reference = generate_reference(duration, sample_rate)
     single_impulse = impulse(sample_rate, duration, decibels=-18)
 

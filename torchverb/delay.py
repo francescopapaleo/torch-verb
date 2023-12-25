@@ -6,35 +6,46 @@ import torchaudio
 class DelayLine(nn.Module):
     def __init__(
         self,
-        sr: int,
-        delay: float,
+        sample_rate: int,
+        delays: list,
         mix: float,
     ) -> None:
         super().__init__()
-        self.delay_samples: int = round(delay * sr)
+        self.delay_list: list = [round(delay * sample_rate) for delay in delays]
         self.mix = mix
 
-    def forward(self, input_sig: torch.Tensor) -> torch.Tensor:
+    def delay(self, input_sig: torch.Tensor, delay_samples: int) -> torch.Tensor:
         # tensor.shape: [n_channels, time]
-        delay_array = torch.zeros([1, self.delay_samples])
+        delay_array = torch.zeros([1, delay_samples])
 
         dry_sig = torch.cat([input_sig, delay_array], dim=-1)
         wet_sig = torch.cat([delay_array, input_sig], dim=-1)
 
         output_sig = wet_sig * self.mix + dry_sig * (1 - self.mix)
         output_sig = output_sig / output_sig.abs().max()
+
+        # Trim the output signal to the same length as the input signal
+        output_sig = output_sig[:, : input_sig.size(1)]
         return output_sig
+
+    def forward(self, input_sig: torch.Tensor) -> torch.Tensor:
+        delayed_sigs = []
+        for delay in self.delay_list:
+            delayed_sigs.append(self.delay(input_sig, delay))
+        sum_sigs = torch.stack(delayed_sigs).sum(dim=0)
+        sum_sigs = sum_sigs / sum_sigs.abs().max()
+        return sum_sigs
 
 
 if __name__ == "__main__":
-    input_file: str = "../audio/raw/plk-fm-base.wav"
-    output_file: str = "../audio/proc/output_echo.wav"
-    delay: float = 0.25
+    input_file: str = "./audio/raw/plk-fm-base.wav"
+    output_file: str = "./audio/proc/output_delay.wav"
+    delays: list = [0.1, 0.2, 0.3, 0.4]
     mix: float = 0.5
 
     input_sig, input_sr = torchaudio.load(input_file)
 
-    delay = DelayLine(sr=input_sr, delay=delay, mix=mix)
+    delay = DelayLine(sample_rate=input_sr, delays=delays, mix=mix)
     output_sig = delay(input_sig)
 
     torchaudio.save(
