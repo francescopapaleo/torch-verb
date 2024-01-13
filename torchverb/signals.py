@@ -1,5 +1,10 @@
+""" 
+Copyright (C) 2024 Francesco Papaleo
+Distributed under the GNU Affero General Public License v3.0
+"""
 import torch
 import torchaudio
+import math
 from typing import Tuple
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -13,7 +18,7 @@ def impulse(
     impulse_duration: float = 0.03,
 ) -> torch.Tensor:
     """
-    Generates an impulse signal with the specified parameters.
+    Generates an impulse signal.
 
     Args:
         sample_rate (int): The sample rate of the signal.
@@ -54,11 +59,11 @@ def sine(
         torch.Tensor: The generated sine wave signal.
     """
     t = torch.arange(0, duration, 1.0 / sample_rate)
-    sine_wave = amplitude * torch.sin(2.0 * torch.pi * frequency * t)
+    sine_wave = amplitude * torch.sin(2.0 * math.pi * frequency * t)
     return sine_wave
 
 
-def sweep_tone(
+def log_sweep_tone(
     sample_rate: int,
     duration: float,
     amplitude: float,
@@ -67,7 +72,7 @@ def sweep_tone(
     inverse: bool = False,
 ) -> torch.Tensor:
     """
-    Generate a sweep tone signal.
+    Generate a logarithmic sweep tone signal.
 
     Args:
         sample_rate (int): The sample rate of the signal.
@@ -82,30 +87,42 @@ def sweep_tone(
     """
     R = torch.log(torch.tensor(f1 / f0))
     t = torch.arange(0, duration, 1.0 / sample_rate)
-    output = torch.sin(
-        (2.0 * torch.pi * f0 * duration / R) * (torch.exp(t * R / duration) - 1)
+    sweep = torch.sin(
+        (2.0 * math.pi * f0 * duration / R) * (torch.exp(t * R / duration) - 1)
     )
     if inverse:
         k = torch.exp(t * R / duration)
-        output = output.flip(0) / k
-    sweep_tone = amplitude * output
-    return sweep_tone
+        inverse_filter = sweep.flip(0) / k
+        return amplitude * inverse_filter
+
+    return amplitude * sweep
 
 
-def generate_reference(
-    duration: float, sample_rate: int, decibels: float = -18, f0: float = 20
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def generate_reference(duration: float, sample_rate: int, decibels: float = 0, f0: float = 20) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """
+    Generates a reference impulse response.
+
+    Parameters:
+    duration (float): The duration of the signal in seconds.
+    sample_rate (int): The sample rate of the signal.
+    decibels (float): The amplitude of the impulse in decibels. Default is 0dB fs.
+    f0 (float): The start frequency of the sweep in Hz. Default is 20.
+
+    Returns:
+    Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: The generated sweep tone, inverse filter, and impulse response.
+    """
     amplitude = 10 ** (decibels / 20)
     f1 = sample_rate / 2
 
-    sweep = sweep_tone(sample_rate, duration, amplitude, f0=f0, f1=f1)
-    inverse_filter = sweep_tone(
-        sample_rate, duration, amplitude, f0=f0, f1=f1, inverse=True
-    )
+    # Generate sweep tone and inverse filter
+    sweep = log_sweep_tone(sample_rate, duration, amplitude, f0, f1)
+    inverse_filter = log_sweep_tone(sample_rate, duration, amplitude, f0, f1, inverse=True)
+    
+    # Convolution
+    impulse_response = torchaudio.functional.convolve(inverse_filter, sweep, mode='full')
+    impulse_response /= torch.max(torch.abs(impulse_response))
 
-    reference = torchaudio.functional.convolve(inverse_filter, sweep)
-
-    return sweep, inverse_filter, reference
+    return sweep, inverse_filter, impulse_response
 
 
 def save_audio(dir_path: str, file_name: str, sample_rate: int, audio: torch.Tensor):
