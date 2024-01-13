@@ -20,14 +20,21 @@ def impulse(
     """
     Generates an impulse signal.
 
-    Args:
-        sample_rate (int): The sample rate of the signal.
-        duration (float): The duration of the signal in seconds.
-        decibels (float, optional): The amplitude of the impulse in decibels. Defaults to -0.5.
-        impulse_duration (float, optional): The duration of the impulse in seconds. Defaults to 0.03.
+    Parameters
+    ----------
+    sample_rate : int
+        The sample rate of the signal.
+    duration : float
+        The duration of the signal in seconds.
+    decibels : float, optional
+        The amplitude of the impulse in decibels. Defaults to -0.5.
+    impulse_duration : float, optional
+        The duration of the impulse in seconds. Defaults to 0.03.
 
-    Returns:
-        torch.Tensor: The generated impulse signal.
+    Returns
+    -------
+    torch.Tensor
+        The generated impulse signal.
     """
     array_length = int(duration * sample_rate)
     impulse = torch.zeros(array_length)
@@ -49,14 +56,21 @@ def sine(
     """
     Generate a sine wave signal.
 
-    Args:
-        sample_rate (int): The sample rate of the signal.
-        duration (float): The duration of the signal in seconds.
-        amplitude (float): The amplitude of the signal.
-        frequency (float, optional): The frequency of the sine wave in Hz. Defaults to 440.0.
+    Parameters
+    ----------
+    sample_rate : int
+        The sample rate of the signal.
+    duration : float
+        The duration of the signal in seconds.
+    amplitude : float
+        The amplitude of the signal.
+    frequency : float, optional
+        The frequency of the sine wave in Hz. Defaults to 440.0.
 
-    Returns:
-        torch.Tensor: The generated sine wave signal.
+    Returns
+    -------
+    torch.Tensor
+        The generated sine wave signal.
     """
     t = torch.arange(0, duration, 1.0 / sample_rate)
     sine_wave = amplitude * torch.sin(2.0 * math.pi * frequency * t)
@@ -74,16 +88,25 @@ def log_sweep_tone(
     """
     Generate a logarithmic sweep tone signal.
 
-    Args:
-        sample_rate (int): The sample rate of the signal.
-        duration (float): The duration of the signal in seconds.
-        amplitude (float): The amplitude of the signal.
-        f0 (float, optional): The starting frequency of the sweep tone. Defaults to 20.
-        f1 (float, optional): The ending frequency of the sweep tone. Defaults to 20000.
-        inverse (bool, optional): Whether to generate an inverse sweep tone. Defaults to False.
+    Parameters
+    ----------
+    sample_rate : int
+        The sample rate of the signal.
+    duration : float
+        The duration of the signal in seconds.
+    amplitude : float
+        The amplitude of the signal.
+    f0 : float, optional
+        The starting frequency of the sweep tone. Defaults to 20.
+    f1 : float, optional
+        The ending frequency of the sweep tone. Defaults to 20000.
+    inverse : bool, optional
+        Whether to generate an inverse sweep tone. Defaults to False.
 
-    Returns:
-        torch.Tensor: The generated sweep tone signal.
+    Returns
+    -------
+    torch.Tensor
+        The generated sweep tone signal.
     """
     R = torch.log(torch.tensor(f1 / f0))
     t = torch.arange(0, duration, 1.0 / sample_rate)
@@ -102,14 +125,21 @@ def generate_reference(duration: float, sample_rate: int, decibels: float = 0, f
     """
     Generates a reference impulse response.
 
-    Parameters:
-    duration (float): The duration of the signal in seconds.
-    sample_rate (int): The sample rate of the signal.
-    decibels (float): The amplitude of the impulse in decibels. Default is 0dB fs.
-    f0 (float): The start frequency of the sweep in Hz. Default is 20.
+    Parameters
+    ----------
+    duration : float
+        The duration of the signal in seconds.
+    sample_rate : int
+        The sample rate of the signal.
+    decibels : float, optional
+        The amplitude of the impulse in decibels. Default is 0dB fs.
+    f0 : float, optional
+        The start frequency of the sweep in Hz. Default is 20.
 
-    Returns:
-    Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: The generated sweep tone, inverse filter, and impulse response.
+    Returns
+    -------
+    Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+        The generated sweep tone, inverse filter, and impulse response.
     """
     amplitude = 10 ** (decibels / 20)
     f1 = sample_rate / 2

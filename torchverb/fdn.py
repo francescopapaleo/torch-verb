@@ -9,6 +9,33 @@ import torchaudio.functional as F
 
 
 class FDNReverb(nn.Module):
+    """
+    FDNReverb class represents a Feedback Delay Network (FDN) reverb module.
+
+    Parameters
+    ----------
+    delays : list
+        A list of delay times in seconds.
+    sample_rate : int
+        The sample rate of the audio signal.
+    mix : float, optional
+        The mix ratio between the wet and dry signals. Defaults to 0.5.
+
+    Attributes
+    ----------
+    sample_rate : int
+        The sample rate of the audio signal.
+    mix : float
+        The mix ratio between the wet and dry signals.
+    delays : list
+        A list of delay times in samples.
+    feedback_gain : torch.nn.Parameter
+        The feedback gains for each delay line.
+    orthogonal_matrix : torch.nn.Parameter
+        The orthogonal mixing matrix.
+    delay_buffers : list
+        The delay buffers for each delay line.
+    """
     def __init__(self, delays, sample_rate, mix=0.5):
         super().__init__()
         self.sample_rate = sample_rate
@@ -30,6 +57,20 @@ class FDNReverb(nn.Module):
         self.delay_buffers = [torch.zeros(max_delay) for _ in range(len(self.delays))]
 
     def forward(self, input_sig):
+        """
+        Apply the FDN reverb effect to the input signal.
+
+        Parameters
+        ----------
+        input_sig : torch.Tensor
+            The input audio signal.
+
+        Returns
+        -------
+        torch.Tensor
+            The output audio signal with the FDN reverb effect applied.
+
+        """
         num_samples = input_sig.size(-1)
         output_sig = torch.zeros_like(input_sig)
 

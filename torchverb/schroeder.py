@@ -9,6 +9,29 @@ import torchaudio.functional as F
 
 
 class SchroederReverb(nn.Module):
+    """
+    SchroederReverb class represents a Schroeder reverb module.
+
+    Parameters
+    ----------
+    n_allpass : int
+        The number of allpass filters.
+    sample_rate : int
+        The sample rate of the audio signal.
+    mix : float, optional
+        The mix ratio between the wet and dry signals. Defaults to 0.5.
+
+    Attributes
+    ----------
+    n_allpass : int
+        The number of allpass filters.
+    sample_rate : int
+        The sample rate of the audio signal.
+    mix : float
+        The mix ratio between the wet and dry signals.
+    allpass_params : list
+        A list of parameters for each allpass filter.
+    """
     def __init__(self, n_allpass, sample_rate, mix=0.5):
         super().__init__()
         self.n_allpass = n_allpass
@@ -18,6 +41,14 @@ class SchroederReverb(nn.Module):
         self.allpass_params = self._create_allpass_params()
 
     def _create_allpass_params(self):
+        """
+        Initialize parameters for each allpass filter.
+
+        Returns
+        -------
+        list
+            A list of tuples, each containing the central frequency and Q factor for an allpass filter.
+        """
         # This function initializes parameters for each allpass filter
         params = []
         for _ in range(self.n_allpass):
@@ -29,6 +60,19 @@ class SchroederReverb(nn.Module):
         return params
 
     def forward(self, input_sig):
+        """
+        Apply the Schroeder reverb effect to the input signal.
+
+        Parameters
+        ----------
+        input_sig : torch.Tensor
+            The input audio signal.
+
+        Returns
+        -------
+        torch.Tensor
+            The output audio signal with the Schroeder reverb effect applied.
+        """
         output_sig = input_sig
         for central_freq, Q in self.allpass_params:
             output_sig = F.allpass_biquad(output_sig, self.sample_rate, central_freq, Q)

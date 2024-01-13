@@ -13,10 +13,29 @@ class ConvolutionReverb(nn.Module):
     """
     ConvolutionReverb module applies convolution reverb effect to an input signal.
 
-    Args:
-        ir_file (str): Path to the impulse response (IR) file.
-        conv_method (str, optional): Convolution method to use. Defaults to "fft".
-        mix (float, optional): Mixing ratio between the wet and dry signals. Defaults to 0.5.
+    Parameters
+    ----------
+    ir_file : str
+        Path to the impulse response (IR) file.
+    conv_method : {'fft', 'direct'}, optional
+        Convolution method to use. Defaults to 'fft'.
+    mix : float, optional
+        Mixing ratio between the wet and dry signals. Defaults to 0.5.
+
+    Attributes
+    ----------
+    ir_sig : torch.Tensor or None
+        The impulse response signal loaded from the IR file.
+    ir_sr : int or None
+        The sample rate of the impulse response signal.
+
+    Methods
+    -------
+    load_ir()
+        Load the impulse response (IR) from the specified file.
+    
+    forward(input_sig)
+        Apply convolution reverb effect to the input signal.
     """
 
     def __init__(
@@ -42,15 +61,6 @@ class ConvolutionReverb(nn.Module):
         self.ir_sig = self.ir_sig[start_index:end_index]
 
     def forward(self, input_sig: torch.Tensor) -> torch.Tensor:
-        """
-        Apply convolution reverb effect to the input signal.
-
-        Args:
-            input_sig (torch.Tensor): Input signal to apply the effect on.
-
-        Returns:
-            torch.Tensor: Output signal with the convolution reverb effect applied.
-        """
         #  length = input_sig.shape[1] + self.ir_sig.shape[1] - 1
 
         if self.conv_method == "fft":

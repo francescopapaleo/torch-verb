@@ -14,12 +14,40 @@ class DelayLine(nn.Module):
         delays: list,
         mix: float,
     ) -> None:
+        """
+        DelayLine class represents a delay line module.
+
+       Parameters
+        ----------
+        sample_rate : int
+            The sample rate of the audio signal.
+        delays : list
+            A list of delay times in seconds.
+        mix : float
+            The mix ratio between the wet and dry signals.
+
+        """
         super().__init__()
         self.delay_list: list = [round(delay * sample_rate) for delay in delays]
         self.mix = mix
 
     def delay(self, input_sig: torch.Tensor, delay_samples: int) -> torch.Tensor:
-        # tensor.shape: [n_channels, time]
+        """
+        Apply delay to the input signal.
+
+        Parameters
+        ----------
+        input_sig : torch.Tensor
+            The input audio signal.
+        delay_samples : int
+            The number of samples to delay the signal.
+
+        Returns
+        -------
+        torch.Tensor
+            The delayed audio signal.
+
+        """
         delay_array = torch.zeros([1, delay_samples])
 
         dry_sig = torch.cat([input_sig, delay_array], dim=-1)
@@ -28,11 +56,24 @@ class DelayLine(nn.Module):
         output_sig = wet_sig * self.mix + dry_sig * (1 - self.mix)
         output_sig = output_sig / output_sig.abs().max()
 
-        # Trim the output signal to the same length as the input signal
         output_sig = output_sig[:, : input_sig.size(1)]
         return output_sig
 
     def forward(self, input_sig: torch.Tensor) -> torch.Tensor:
+        """
+        Apply the delay line effect to the input signal.
+
+        Parameters
+        ----------
+        input_sig : torch.Tensor
+            The input audio signal.
+
+        Returns
+        -------
+        torch.Tensor
+            The output audio signal with the delay effect applied.
+
+        """
         delayed_sigs = []
         for delay in self.delay_list:
             delayed_sigs.append(self.delay(input_sig, delay))
