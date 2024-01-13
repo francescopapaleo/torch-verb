@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "torchverb"
+version = "0.0.1"
+description = "A reverberation toolkit for PyTorch"
+authors = [{name = "Francesco Papaleo"}]
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+homepage = "https://github.com/francescopapaleo/torchverb"
+repository = "https://github.com/francescopapaleo/torchverb"
+documentation = "https://github.com/francescopapaleo/torchverb/docs"
+
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    .git
+    | __pycache__
+    | build
+    | dist
+)/
+'''
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = E203, W503
