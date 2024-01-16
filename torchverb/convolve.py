@@ -54,7 +54,7 @@ class ConvolutionReverb(nn.Module):
         """
         Load the impulse response (IR) from the specified file.
         """
-        self.ir_sig, _ = torchaudio.load(self.ir_file)
+        self.ir_sig, _ = torchaudio.load(str(self.ir_file))
         non_zero_indices = torch.nonzero(self.ir_sig.squeeze())
         start_index = non_zero_indices[0]
         end_index = non_zero_indices[-1] + 1
@@ -83,9 +83,9 @@ class ConvolutionReverb(nn.Module):
 
 
 if __name__ == "__main__":
-    input_file: str = "../audio/raw/plk-fm-base.wav"
-    output_file: str = "../audio/proc/output_convolve.wav"
-    ir_file: str = "../audio/ir_analog/IR_AKG_BX25_1500ms_48kHz24b.wav"
+    input_file: str = "./audio/raw/plk-fm-base.wav"
+    output_file: str = "./audio/proc/output_convolve.wav"
+    ir_file: str = "./audio/ir_analog/IR_AKG_BX25_1500ms_48kHz24b.wav"
     conv_method: str = "fft"
     mix: float = 0.5
 

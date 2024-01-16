@@ -28,8 +28,12 @@ class DelayLine(nn.Module):
 
         """
         super().__init__()
+        self.sample_rate = sample_rate
         self.delay_list: list = [round(delay * sample_rate) for delay in delays]
         self.mix = mix
+
+    def delay_samples(self):
+        return max(self.delay_list)
 
     def delay(self, input_sig: torch.Tensor, delay_samples: int) -> torch.Tensor:
         """

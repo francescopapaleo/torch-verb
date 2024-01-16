@@ -6,24 +6,27 @@ from torchverb import DelayLine
 @pytest.fixture
 def delay():
     sr = 48000
-    delay = 0.5
+    delays = [0.5]
     mix = 0.5
-    return DelayLine(sr, delay, mix)
+    return DelayLine(sr, delays, mix)
 
 
-def test_initialization(delay):
+def test_initialization():
     sr = 48000
-    delay = 0.5
+    delay_time = 0.5
     mix = 0.5
-    assert delay.delay_samples == round(delay * sr)
-    assert delay.mix == mix
+    delay = DelayLine(sr, [delay_time], mix)
+    assert delay.delay_samples() == round(delay_time * sr)
 
 
-def test_delay(delay):
+def test_delay():
     sr = 48000
-    input_sig = torch.randn(1, sr)  # replace with a real input signal
+    delay_time = 0.5
+    mix = 0.5
+    delay = DelayLine(sr, [delay_time], mix)
+    input_sig = torch.randn(1, sr)  # Replace with a real input signal
     output_sig = delay(input_sig)
-    expected_output_shape = torch.Size([1, sr + delay.delay_samples])
+    expected_output_shape = torch.Size([1, sr])
     assert output_sig.shape == expected_output_shape
 
 
