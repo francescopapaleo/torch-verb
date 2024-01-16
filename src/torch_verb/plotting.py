@@ -1,7 +1,8 @@
-""" 
+"""
 Copyright (C) 2024 Francesco Papaleo
 Distributed under the GNU Affero General Public License v3.0
 """
+
 import matplotlib.pyplot as plt
 
 
@@ -11,21 +12,21 @@ def plot_reference_ir():
 
     # Plot the sweep tone
     axs[0].plot(sweep.numpy())  # Convert tensor to numpy array for plotting
-    axs[0].set_title('Sweep Tone')
-    axs[0].set_xlabel('Sample')
-    axs[0].set_ylabel('Amplitude')
+    axs[0].set_title("Sweep Tone")
+    axs[0].set_xlabel("Sample")
+    axs[0].set_ylabel("Amplitude")
 
     # Plot the inverse filter
     axs[1].plot(inverse_filter.numpy())
-    axs[1].set_title('Inverse Filter')
-    axs[1].set_xlabel('Sample')
-    axs[1].set_ylabel('Amplitude')
+    axs[1].set_title("Inverse Filter")
+    axs[1].set_xlabel("Sample")
+    axs[1].set_ylabel("Amplitude")
 
     # Plot the impulse response
     axs[2].plot(impulse_response.numpy())
-    axs[2].set_title('Impulse Response')
-    axs[2].set_xlabel('Sample')
-    axs[2].set_ylabel('Amplitude')
+    axs[2].set_title("Impulse Response")
+    axs[2].set_xlabel("Sample")
+    axs[2].set_ylabel("Amplitude")
 
     # Adjust the layout
     plt.tight_layout()

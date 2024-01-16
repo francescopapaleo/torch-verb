@@ -14,7 +14,9 @@ def test_SchroederReverb_init():
     assert reverb.n_allpass == n_allpass
     assert reverb.sample_rate == sample_rate
     assert reverb.mix == mix
-    assert all(isinstance(param, tuple) and len(param) == 2 for param in reverb.allpass_params)
+    assert all(
+        isinstance(param, tuple) and len(param) == 2 for param in reverb.allpass_params
+    )
 
 
 def test_SchroederReverb_forward():

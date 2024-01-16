@@ -1,7 +1,8 @@
-""" 
+"""
 Copyright (C) 2024 Francesco Papaleo
 Distributed under the GNU Affero General Public License v3.0
 """
+
 import torch
 import torch.nn as nn
 import torchaudio
@@ -33,7 +34,7 @@ class ConvolutionReverb(nn.Module):
     -------
     load_ir()
         Load the impulse response (IR) from the specified file.
-    
+
     forward(input_sig)
         Apply convolution reverb effect to the input signal.
     """

@@ -49,7 +49,7 @@ def test_generate_reference():
 
     sweep, inverse_filter, impulse_response = generate_reference(
         duration, sample_rate, decibels, f0
-        )
+    )
 
     assert isinstance(sweep, torch.Tensor)
     assert isinstance(inverse_filter, torch.Tensor)

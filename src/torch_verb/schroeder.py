@@ -1,7 +1,8 @@
-""" 
+"""
 Copyright (C) 2024 Francesco Papaleo
 Distributed under the GNU Affero General Public License v3.0
 """
+
 import torch
 import torch.nn as nn
 import torchaudio
@@ -32,6 +33,7 @@ class SchroederReverb(nn.Module):
     allpass_params : list
         A list of parameters for each allpass filter.
     """
+
     def __init__(self, n_allpass, sample_rate, mix=0.5):
         super().__init__()
         self.n_allpass = n_allpass

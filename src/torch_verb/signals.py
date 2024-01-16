@@ -1,7 +1,8 @@
-""" 
+"""
 Copyright (C) 2024 Francesco Papaleo
 Distributed under the GNU Affero General Public License v3.0
 """
+
 import torch
 import torchaudio
 import math
@@ -121,7 +122,9 @@ def log_sweep_tone(
     return amplitude * sweep
 
 
-def generate_reference(duration: float, sample_rate: int, decibels: float = 0, f0: float = 20) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def generate_reference(
+    duration: float, sample_rate: int, decibels: float = 0, f0: float = 20
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Generates a reference impulse response.
 
@@ -146,10 +149,14 @@ def generate_reference(duration: float, sample_rate: int, decibels: float = 0, f
 
     # Generate sweep tone and inverse filter
     sweep = log_sweep_tone(sample_rate, duration, amplitude, f0, f1)
-    inverse_filter = log_sweep_tone(sample_rate, duration, amplitude, f0, f1, inverse=True)
-    
+    inverse_filter = log_sweep_tone(
+        sample_rate, duration, amplitude, f0, f1, inverse=True
+    )
+
     # Convolution
-    impulse_response = torchaudio.functional.convolve(inverse_filter, sweep, mode='full')
+    impulse_response = torchaudio.functional.convolve(
+        inverse_filter, sweep, mode="full"
+    )
     impulse_response /= torch.max(torch.abs(impulse_response))
 
     return sweep, inverse_filter, impulse_response

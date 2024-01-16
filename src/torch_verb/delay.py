@@ -1,7 +1,8 @@
-""" 
+"""
 Copyright (C) 2024 Francesco Papaleo
 Distributed under the GNU Affero General Public License v3.0
 """
+
 import torch
 import torch.nn as nn
 import torchaudio
@@ -15,16 +16,16 @@ class DelayLine(nn.Module):
         mix: float,
     ) -> None:
         """
-        DelayLine class represents a delay line module.
+         DelayLine class represents a delay line module.
 
-       Parameters
-        ----------
-        sample_rate : int
-            The sample rate of the audio signal.
-        delays : list
-            A list of delay times in seconds.
-        mix : float
-            The mix ratio between the wet and dry signals.
+        Parameters
+         ----------
+         sample_rate : int
+             The sample rate of the audio signal.
+         delays : list
+             A list of delay times in seconds.
+         mix : float
+             The mix ratio between the wet and dry signals.
 
         """
         super().__init__()
